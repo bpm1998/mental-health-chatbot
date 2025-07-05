@@ -5,3 +5,4 @@ pandas
 deep_translator
 torch
 transformers
+langdetect
