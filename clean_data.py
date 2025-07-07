@@ -23,3 +23,4 @@ df['clean_selftext'] = df['selftext'].apply(clean_text)
 df.to_csv("reddit_depression_cleaned.csv", index=False, encoding='utf-8')
 
 print(f"✅ Cleaned data saved to reddit_depression_cleaned.csv with {len(df)} rows.")
+    

@@ -1,0 +1,21 @@
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore model files
+*.pkl
+
+# Ignore virtual environments
+venv/
+env/
+
+# Ignore logs and CSVs
+*.log
+chat_logs.csv
+*.csv
+
+# Jupyter checkpoint files
+.ipynb_checkpoints/
+
+# VS Code settings (optional)
+.vscode/

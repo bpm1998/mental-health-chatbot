@@ -1,0 +1,61 @@
+randomforest model
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+import joblib
+
+# Load real (scraped + labeled) dataset
+df_real = pd.read_csv("reddit_labeled_suicide.csv")[["clean_selftext", "suicidal_intent"]]
+
+# Load synthetic dataset
+df_synth = pd.read_csv("synthetic_suicide_data.csv")[["clean_selftext", "suicidal_intent"]]
+
+# Combine both
+df = pd.concat([df_real, df_synth], ignore_index=True)
+
+# Clean label column
+df["suicidal_intent"] = df["suicidal_intent"].astype(str).str.strip().str.lower()
+
+# Convert labels to 0/1
+df["label"] = df["suicidal_intent"].map({"suicidal": 1, "not suicidal": 0})
+
+# Drop any rows with missing data
+df.dropna(subset=["clean_selftext", "label"], inplace=True)
+
+# Display info
+print("📊 Dataset Loaded:")
+print(df["label"].value_counts())
+print(f"Total records: {len(df)}\n")
+
+# Split
+X = df["clean_selftext"]
+y = df["label"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# TF-IDF Vectorizer
+vectorizer = TfidfVectorizer(
+    stop_words='english',
+    ngram_range=(1, 2),
+    max_df=0.9,
+    min_df=2
+)
+
+X_train_vec = vectorizer.fit_transform(X_train)
+X_test_vec = vectorizer.transform(X_test)
+
+# Model
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train_vec, y_train)
+
+# Evaluation
+y_pred = model.predict(X_test_vec)
+print("📊 Classification Report:")
+print(classification_report(y_test, y_pred, target_names=["Not Suicidal", "Suicidal"]))
+
+# Save
+joblib.dump(model, "suicide_classifier_model.pkl")
+joblib.dump(vectorizer, "vectorizer.pkl")
+print("\n✅ Model and vectorizer saved successfully.")
